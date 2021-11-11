@@ -1,7 +1,11 @@
-package org.example.Miejscowkaoccupancymodeling.logic;
+package org.example.Miejscowkaoccupancymodeling.logic.impl;
 
 import org.example.Miejscowkaoccupancymodeling.exception.EntityAlreadyExistsException;
-import org.example.Miejscowkaoccupancymodeling.model.*;
+import org.example.Miejscowkaoccupancymodeling.logic.mapper.OccupancyMapper;
+import org.example.Miejscowkaoccupancymodeling.logic.to.OccupancyTo;
+import org.example.Miejscowkaoccupancymodeling.model.dao.OccupancyDao;
+import org.example.Miejscowkaoccupancymodeling.model.entity.OccupancyEntity;
+import org.example.Miejscowkaoccupancymodeling.model.entity.OccupancyId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

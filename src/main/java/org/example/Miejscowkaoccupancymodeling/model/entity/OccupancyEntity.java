@@ -1,8 +1,11 @@
-package org.example.Miejscowkaoccupancymodeling.model;
+package org.example.Miejscowkaoccupancymodeling.model.entity;
 
 import com.sun.istack.NotNull;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -20,9 +23,6 @@ public class OccupancyEntity {
     @Column(name = "PERCENTAGE")
     private int percentage_occupancy;
 
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinColumn(name = "TREND_ID", nullable = true, referencedColumnName = "id")
-    private TrendEntity trend;
 
     public OccupancyEntity() {
     }

@@ -1,4 +1,6 @@
-package org.example.Miejscowkaoccupancymodeling.model;
+package org.example.Miejscowkaoccupancymodeling.model.entity;
+
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -7,7 +9,10 @@ import java.util.Objects;
 
 @Embeddable
 public class OccupancyId implements Serializable {
+
     private Long placeId;
+
+    @Type(type = "LocalDateTime")
     private LocalDateTime timeId;
 
     public OccupancyId() {

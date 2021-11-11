@@ -1,8 +1,8 @@
 package org.example.Miejscowkaoccupancymodeling.api;
 
 import org.example.Miejscowkaoccupancymodeling.exception.EntityAlreadyExistsException;
-import org.example.Miejscowkaoccupancymodeling.logic.OccupancyLogic;
-import org.example.Miejscowkaoccupancymodeling.model.OccupancyTo;
+import org.example.Miejscowkaoccupancymodeling.logic.impl.OccupancyLogic;
+import org.example.Miejscowkaoccupancymodeling.logic.to.OccupancyTo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;

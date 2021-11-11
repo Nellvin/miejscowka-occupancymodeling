@@ -1,4 +1,4 @@
-package org.example.Miejscowkaoccupancymodeling.model;
+package org.example.Miejscowkaoccupancymodeling.logic.to;
 
 import com.sun.istack.NotNull;
 
