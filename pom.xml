@@ -84,6 +84,7 @@
 	</dependencies>
 
 	<build>
+       <finalName>miejscowka-occupancymodeling</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

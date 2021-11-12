@@ -5,19 +5,17 @@ import com.sun.istack.NotNull;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity
-@Table(name = "OCCUPANCY")
+@Entity(name = "OCCUPANCY_MODELING")
 public class OccupancyEntity {
 
     @EmbeddedId
     private OccupancyId id;
 
     @Column(name = "IS_ACTIVE")
-    private boolean active;
+    private boolean active = true;
 
     @NotNull
     @Column(name = "NUMBER_OF_PEOPLE", nullable = false)
