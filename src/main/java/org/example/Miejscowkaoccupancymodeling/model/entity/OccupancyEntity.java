@@ -16,6 +16,9 @@ public class OccupancyEntity {
     @EmbeddedId
     private OccupancyId id;
 
+    @Column(name = "IS_ACTIVE")
+    private boolean active;
+
     @NotNull
     @Column(name = "NUMBER_OF_PEOPLE", nullable = false)
     private int number_of_people;
@@ -25,9 +28,11 @@ public class OccupancyEntity {
 
 
     public OccupancyEntity() {
+        this.active = true;
     }
 
     public OccupancyEntity(Long placeId, Integer numberOfPeople, LocalDateTime time) {
+        super();
         this.number_of_people = numberOfPeople;
         this.id = new OccupancyId(placeId, time);
     }
@@ -54,6 +59,14 @@ public class OccupancyEntity {
 
     public void setPercentage_occupancy(int percentage_occupancy) {
         this.percentage_occupancy = percentage_occupancy;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override

@@ -41,36 +41,78 @@ public class TrendLogic {
 
     @Transactional
     public Optional<TrendTo> findTrend(Long placeId) throws EntityDoesNotExistException {
-        TrendEntity trend;
-        Optional<Set<OccupancyEntity>> occupancies = occupancyDao.findByIdPlaceId(placeId);
-        if (trendDao.existsByPlaceId(placeId)) {
-            trend = trendDao.getByPlaceId(placeId);
-            updateTrend(trend, occupancies);
-        } else {
-            trend = createTrend(placeId, occupancies);
+        Optional<Set<OccupancyEntity>> occupancy = occupancyDao.findByActiveAndIdPlaceId(true, placeId);
+        Optional<TrendEntity> trend = trendDao.findByPlaceId(placeId);
+        if (!occupancy.orElse(Collections.emptySet()).isEmpty()) {
+            if (trend.isPresent()) {
+                updateTrend(trend.get(), occupancy.get());
+            } else {
+                trend = Optional.ofNullable(createTrend(placeId, occupancy.get()));
+            }
         }
-        return Optional.ofNullable(trendMapper.toTrendTo(trend));
+        return Optional.ofNullable(trendMapper.toTrendTo(trend.orElse(null)));
     }
 
-    private void updateTrend(TrendEntity trend, Optional<Set<OccupancyEntity>> occupancies) {
-        DAYS.forEach(day -> {
-            Set<OccupancyEntity> occupancyFromDay = occupancies.orElse(Collections.emptySet()).stream().filter(occ -> occ.getId().getTimeId().getDayOfWeek().getValue() == day).collect(Collectors.toSet());
-            if (trendDayDao.existsByDayAndTrend(day, trend)) {
-                updateTrendDays(occupancyFromDay, day, trend);
-            } else {
-                TrendDayEntity dayTrend = createTrendDays(occupancyFromDay, day, trend);
-                if (dayTrend != null) {
-                    trend.addTrendDay(dayTrend);
+    private void updateTrend(TrendEntity trend, Set<OccupancyEntity> occupancy) {
+            DAYS.forEach(day -> {
+                Set<OccupancyEntity> occupancyFromDay = occupancy.stream().filter(occ -> occ.getId().getTimeId().getDayOfWeek().getValue() == day).collect(Collectors.toSet());
+                if (!occupancyFromDay.isEmpty()) {
+                    Optional<TrendDayEntity> trendDay = trendDayDao.findByDayAndTrend(day, trend);
+                    if (trendDay.isPresent()) {
+                        updateTrendDays(occupancyFromDay, day, trendDay.get());
+                    } else {
+                        TrendDayEntity dayTrend = createTrendDays(occupancyFromDay, day, trend);
+                        if (dayTrend != null) {
+                            trend.addTrendDay(dayTrend);
+                        }
+                    }
                 }
+            });
+    }
+
+    private TrendEntity createTrend(long placeId, Set<OccupancyEntity> occupancy) {
+            TrendEntity trend = new TrendEntity(placeId);
+            DAYS.forEach(day -> {
+                Set<OccupancyEntity> occupancyFromDay = occupancy.stream().filter(occ -> occ.getId().getTimeId().getDayOfWeek().getValue() == day).collect(Collectors.toSet());
+                if (!occupancyFromDay.isEmpty()) {
+                    TrendDayEntity dayTrend = createTrendDays(occupancyFromDay, day, trend);
+                    if (dayTrend != null) {
+                        trend.addTrendDay(dayTrend);
+                    }
+                }
+            });
+            if (!trend.getTrendDayEntities().isEmpty()) {
+                trendDao.saveAndFlush(trend);
+                return trend;
+            }
+        return null;
+    }
+
+    private TrendDayEntity createTrendDays(Set<OccupancyEntity> occupancyFromDay, int day, TrendEntity trend) {
+        TrendDayEntity trendDay = new TrendDayEntity();
+        HOURS.forEach(hour -> {
+            Set<OccupancyEntity> occupancyFromDayHour = occupancyFromDay.stream().filter(occ -> occ.getId().getTimeId().getHour() == hour).collect(Collectors.toSet());
+            TrendHourEntity trendHour = createTrendHours(occupancyFromDayHour, hour, trendDay);
+            if (trendHour != null) {
+                trendDay.addTrendHour(trendHour);
             }
         });
+        if (!trendDay.getTrendHourEntities().isEmpty()) {
+            trendDay.setDay(day);
+            trendDay.setTrend(trend);
+            trendDayDao.save(trendDay);
+            return trendDay;
+        }
+        return null;
     }
 
-    private TrendDayEntity updateTrendDays(Set<OccupancyEntity> occupancyFromDay, Integer day, TrendEntity trend) {
-        TrendDayEntity trendDay = trendDayDao.findByDayAndTrend(day, trend).orElse(null);
+    private void updateTrendDays(Set<OccupancyEntity> occupancyFromDay, Integer day, TrendDayEntity trendDay) {
         trendDay.setDay(day);
         HOURS.forEach(hour -> {
             Set<OccupancyEntity> occupancyFromDayHour = occupancyFromDay.stream().filter(occ -> occ.getId().getTimeId().getHour() == hour).collect(Collectors.toSet());
+            if (occupancyFromDayHour.isEmpty()) {
+                return;
+            }
             if (trendHourDao.existsByHourAndTrendDay(hour, trendDay)) {
                 updateTrendHours(occupancyFromDayHour, hour, trendDay);
             } else {
@@ -80,12 +122,28 @@ public class TrendLogic {
                 }
             }
         });
-        return trendDay;
     }
 
-    private TrendHourEntity updateTrendHours(Set<OccupancyEntity> occupancyFromDayHour, Integer hour, TrendDayEntity trendDay) {
+    private TrendHourEntity createTrendHours(Set<OccupancyEntity> occupancyFromDayHour, int hour, TrendDayEntity trendDay) {
         if (occupancyFromDayHour.isEmpty()) {
             return null;
+        }
+        int occupancySum = occupancyFromDayHour.stream().map(OccupancyEntity::getNumber_of_people).reduce(0, Integer::sum);
+        int occupancyEntries = occupancyFromDayHour.size();
+        TrendHourEntity trendHour = new TrendHourEntity(null, hour, occupancySum / occupancyEntries, occupancySum, occupancyFromDayHour.size());
+        if (trendHour.getAverage() > 0) {
+            trendHour.setTrendDay(trendDay);
+            trendHourDao.save(trendHour);
+            occupancyFromDayHour.forEach(occupancy -> occupancy.setActive(false));
+            occupancyDao.saveAll(occupancyFromDayHour);
+            return trendHour;
+        }
+        return null;
+    }
+
+    private void updateTrendHours(Set<OccupancyEntity> occupancyFromDayHour, Integer hour, TrendDayEntity trendDay) {
+        if (occupancyFromDayHour.isEmpty()) {
+            return;
         }
         TrendHourEntity trendHour = trendHourDao.findByHourAndTrendDay(hour, trendDay).orElse(null);
         int occupancySum = trendHour.getAverageSum() + occupancyFromDayHour.stream().map(OccupancyEntity::getNumber_of_people).reduce(0, Integer::sum);
@@ -94,60 +152,7 @@ public class TrendLogic {
         trendHour.setAverageSum(occupancySum);
         trendHour.setDataCounter(occupancyEntries);
         trendHourDao.save(trendHour);
-        return trendHour;
-    }
-
-    private TrendEntity createTrend(long placeId, Optional<Set<OccupancyEntity>> occupancies) {
-        if (occupancies.get().isEmpty())
-            return null;
-        TrendEntity trend = createTrend(occupancies.get(), placeId);
-        return trend;
-    }
-
-    private TrendEntity createTrend(Set<OccupancyEntity> occupancy, long placeId) {
-        TrendEntity trend = new TrendEntity(placeId);
-        DAYS.forEach(day -> {
-            Set<OccupancyEntity> occupancyFromDay = occupancy.stream().filter(occ -> occ.getId().getTimeId().getDayOfWeek().getValue() == day).collect(Collectors.toSet());
-            TrendDayEntity dayTrend = createTrendDays(occupancyFromDay, day, trend);
-            if (dayTrend != null) {
-                trend.addTrendDay(dayTrend);
-            }
-        });
-        if (trend.getTrendDayEntities().isEmpty())
-            return null;
-        trendDao.saveAndFlush(trend);
-        return trend;
-    }
-
-    private TrendDayEntity createTrendDays(Set<OccupancyEntity> occupancyFromDay, int day, TrendEntity trend) {
-        TrendDayEntity trendDay = new TrendDayEntity();
-        trendDay.setDay(day);
-        HOURS.forEach(hour -> {
-            Set<OccupancyEntity> occupancyFromDayHour = occupancyFromDay.stream().filter(occ -> occ.getId().getTimeId().getHour() == hour).collect(Collectors.toSet());
-            TrendHourEntity trendHour = createTrendHours(occupancyFromDayHour, hour, trendDay);
-            if (trendHour != null) {
-                trendDay.addTrendHour(trendHour);
-            }
-        });
-        if (trendDay.getTrendHourEntities().isEmpty())
-            return null;
-        trendDay.setTrend(trend);
-        trendDayDao.save(trendDay);
-        return trendDay;
-    }
-
-    private TrendHourEntity createTrendHours(Set<OccupancyEntity> occupancy, int hour, TrendDayEntity trendDay) {
-        if (occupancy.isEmpty()) {
-            return null;
-        }
-        int occupancySum = occupancy.stream().map(OccupancyEntity::getNumber_of_people).reduce(0, Integer::sum);
-        int occupancyEntries = occupancy.size();
-        TrendHourEntity trendHour = new TrendHourEntity(null, hour, occupancySum / occupancyEntries, occupancySum, occupancy.size());
-        if (trendHour.getAverage() > 0) {
-            trendHour.setTrendDay(trendDay);
-            trendHourDao.save(trendHour);
-            return trendHour;
-        }
-        return null;
+        occupancyFromDayHour.forEach(occupancy -> occupancy.setActive(false));
+        occupancyDao.saveAll(occupancyFromDayHour);
     }
 }

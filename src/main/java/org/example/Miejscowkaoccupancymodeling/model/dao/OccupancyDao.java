@@ -14,4 +14,6 @@ public interface OccupancyDao extends JpaRepository<OccupancyEntity, OccupancyId
     Optional<Set<OccupancyEntity>> findByIdPlaceId(Long placeId);
 
     boolean existsOccupancyEntityById(OccupancyId occupancyId);
+
+    Optional<Set<OccupancyEntity>> findByActiveAndIdPlaceId(boolean active, Long placeId);
 }

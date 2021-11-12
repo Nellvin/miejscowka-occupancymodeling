@@ -78,6 +78,6 @@ public class TrendDayEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(trend, day);
+        return Objects.hash( trend, day);
     }
 }
