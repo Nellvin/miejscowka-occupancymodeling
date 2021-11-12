@@ -21,8 +21,7 @@ public class TrendRestServiceImpl implements TrendRestService {
         try {
             return ResponseEntity
                     .ok()
-                    .body(trendLogic.findTrend(placeId).orElseThrow(() ->
-                            new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)));
+                    .body(trendLogic.findTrend(placeId).orElse(null));
         } catch (EntityDoesNotExistException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

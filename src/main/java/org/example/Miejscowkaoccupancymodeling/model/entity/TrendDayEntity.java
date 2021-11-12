@@ -2,6 +2,7 @@ package org.example.Miejscowkaoccupancymodeling.model.entity;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity(name = "TREND_DAY")
@@ -65,5 +66,18 @@ public class TrendDayEntity {
 
     public boolean addTrendHour(TrendHourEntity trendHour) {
         return trendHourEntities.add(trendHour);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrendDayEntity trendDay = (TrendDayEntity) o;
+        return day == trendDay.day && trend.equals(trendDay.trend);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trend, day);
     }
 }

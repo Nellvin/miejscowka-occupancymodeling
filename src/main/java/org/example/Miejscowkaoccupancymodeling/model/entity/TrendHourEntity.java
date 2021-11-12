@@ -1,6 +1,7 @@
 package org.example.Miejscowkaoccupancymodeling.model.entity;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity(name = "TREND_HOUR")
 public class TrendHourEntity {
@@ -82,5 +83,18 @@ public class TrendHourEntity {
 
     public void setAverage(int average) {
         this.average = average;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrendHourEntity trendHour = (TrendHourEntity) o;
+        return hour == trendHour.hour && Objects.equals(trendDay, trendHour.trendDay);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trendDay, hour);
     }
 }

@@ -3,7 +3,6 @@ package org.example.Miejscowkaoccupancymodeling.api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.example.Miejscowkaoccupancymodeling.logic.to.OccupancyTo;
 import org.example.Miejscowkaoccupancymodeling.logic.to.TrendTo;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public interface TrendRestService {
 
-    @ApiOperation(value = "Create occupancy",
-            tags = {"occupancy"},
-            response = OccupancyTo.class)
+    @ApiOperation(value = "Get trend",
+            tags = {"trend"},
+            response = TrendTo.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful request"),
             @ApiResponse(code = 422, message = "Could not process entity"),
