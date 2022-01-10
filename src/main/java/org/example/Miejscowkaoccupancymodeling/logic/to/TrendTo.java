@@ -1,14 +1,14 @@
 package org.example.Miejscowkaoccupancymodeling.logic.to;
 
-import java.util.Set;
+import java.util.List;
 
 public class TrendTo {
 
     private Long placeId;
 
-    private Set<TrendDayTo> trendDayEntities;
+    private List<TrendDayTo> trendDayEntities;
 
-    public TrendTo(Long placeId, Set<TrendDayTo> trendDayEntities) {
+    public TrendTo(Long placeId, List<TrendDayTo> trendDayEntities) {
         this.placeId = placeId;
         this.trendDayEntities = trendDayEntities;
     }
@@ -24,11 +24,11 @@ public class TrendTo {
         this.placeId = placeId;
     }
 
-    public Set<TrendDayTo> getTrendDayEntities() {
+    public List<TrendDayTo> getTrendDayEntities() {
         return trendDayEntities;
     }
 
-    public void setTrendDayEntities(Set<TrendDayTo> trendDayEntities) {
+    public void setTrendDayEntities(List<TrendDayTo> trendDayEntities) {
         this.trendDayEntities = trendDayEntities;
     }
 }

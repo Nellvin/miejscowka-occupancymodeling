@@ -1,9 +1,9 @@
 package org.example.Miejscowkaoccupancymodeling.model.entity;
 
 import javax.persistence.*;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity(name = "TREND_DAY")
 public class TrendDayEntity {
@@ -20,16 +20,16 @@ public class TrendDayEntity {
     private int day;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "trendDay", cascade = CascadeType.MERGE, orphanRemoval = true)
-    private Set<TrendHourEntity> trendHourEntities;
+    private List<TrendHourEntity> trendHourEntities;
 
     public TrendDayEntity() {
-        this.trendHourEntities = new HashSet<>();
+        this.trendHourEntities = new ArrayList<>();
     }
 
     public TrendDayEntity(TrendEntity trend, int day, int averageSum, int dataCounter) {
         this.trend = trend;
         this.day = day;
-        this.trendHourEntities = new HashSet<>();
+        this.trendHourEntities = new ArrayList<>();
     }
 
     public Long getId() {
@@ -56,11 +56,11 @@ public class TrendDayEntity {
         this.day = day;
     }
 
-    public Set<TrendHourEntity> getTrendHourEntities() {
+    public List<TrendHourEntity> getTrendHourEntities() {
         return trendHourEntities;
     }
 
-    public void setTrendDayEntities(Set<TrendHourEntity> trendHourEntities) {
+    public void setTrendDayEntities(List<TrendHourEntity> trendHourEntities) {
         this.trendHourEntities = trendHourEntities;
     }
 
@@ -78,6 +78,6 @@ public class TrendDayEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash( trend, day);
+        return Objects.hash(trend, day);
     }
 }

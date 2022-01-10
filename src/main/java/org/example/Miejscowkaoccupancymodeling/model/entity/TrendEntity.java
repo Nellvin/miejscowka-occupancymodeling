@@ -1,8 +1,8 @@
 package org.example.Miejscowkaoccupancymodeling.model.entity;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "TREND")
@@ -19,15 +19,15 @@ public class TrendEntity {
     private Long placeId;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "trend", cascade = CascadeType.MERGE, orphanRemoval = true)
-    private Set<TrendDayEntity> trendDayEntities;
+    private List<TrendDayEntity> trendDayEntities;
 
     public TrendEntity() {
-        this.trendDayEntities = new HashSet<>();
+        this.trendDayEntities = new ArrayList<>();
     }
 
     public TrendEntity(Long placeId) {
         this.placeId = placeId;
-        this.trendDayEntities = new HashSet<>();
+        this.trendDayEntities = new ArrayList<>();
 
     }
 
@@ -47,11 +47,11 @@ public class TrendEntity {
         this.placeId = placeId;
     }
 
-    public Set<TrendDayEntity> getTrendDayEntities() {
+    public List<TrendDayEntity> getTrendDayEntities() {
         return trendDayEntities;
     }
 
-    public void setTrendDayEntities(Set<TrendDayEntity> trendDayEntities) {
+    public void setTrendDayEntities(List<TrendDayEntity> trendDayEntities) {
         this.trendDayEntities = trendDayEntities;
     }
 

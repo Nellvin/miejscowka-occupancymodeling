@@ -50,6 +50,11 @@ public class TrendLogic {
                 trend = Optional.ofNullable(createTrend(placeId, occupancy.get()));
             }
         }
+        TrendEntity resultTrend = trend.orElse(null);
+        resultTrend.getTrendDayEntities().sort(Comparator.comparingInt(TrendDayEntity::getDay));
+        for (TrendDayEntity dayTrend : resultTrend.getTrendDayEntities()) {
+            dayTrend.getTrendHourEntities().sort(Comparator.comparingInt(TrendHourEntity::getHour));
+        }
         return Optional.ofNullable(trendMapper.toTrendTo(trend.orElse(null)));
     }
 
